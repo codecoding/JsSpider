@@ -4,14 +4,16 @@ var fs = require('fs'),
     nd = require('node-dir'),
     path = require('path'),
     models = require('./models.js'),
-    DIR = 'C:\\TFS\\Habitaclia\\Frontal\\Habitaclia\\RELEASE',
+    config = require('./config.js'),
+    DIR = config.DIR,
+    ContainerFilePattern = config.ContainerFilePattern,
+    extension = config.extension,
     jsFiles = [],
-    aspFiles = [],
+    containerFiles = [],
     echo = console.log,
     jsPattern = /\.js$/,
-    aspPattern = /\.asp$/,
     found = 0,
-    totalAsp = 0,
+    totalContainerFiles = 0,
     usedJsFiles = [];
 
 echo('Starting our mission');
@@ -28,7 +30,7 @@ function getJsFiles(files) {
     return jsc;
 }
 
-function parseAsp(content, usedInFileName){
+function parseContainerFile(content, usedInFileName){
     var patt = null,
         extpatt = null,
         jsUsedFiles = [],
@@ -50,22 +52,22 @@ function parseAsp(content, usedInFileName){
                 }
             } while(m);
             echo('... found ', useFound , ' js matches in ' + path.basename(usedInFileName));
-            jsUsedFiles.push(new models.UseFile(f, uses)); //asp specific
+            jsUsedFiles.push(new models.UseFile(f, uses)); //container file specific
             if (usedJsFiles.indexOf(f) < 0) {
                 usedJsFiles.push(f); //global
             }
         }
     });
     
-    //check if any use and add to aspFiles
+    //check if any use and add to containerFiles
     if (jsUsedFiles.length) {
-        //get the container file (asp) and find all js uses in it
+        //get the container file and find all js uses in it
         var id = found++;
-        var asp = new models.ContainerFile(new models.File(usedInFileName, id), jsUsedFiles);
-        aspFiles.push(asp);
-        echo('... ASPs affected ', id);
+        var cf = new models.ContainerFile(new models.File(usedInFileName, id), jsUsedFiles);
+        containerFiles.push(cf);
+        echo('... ' + extension +'s affected ', id);
     }
-    totalAsp++;
+    totalContainerFiles++;
 }
 
 function writeFile(){
@@ -77,15 +79,15 @@ function writeFile(){
         return str;
     }
     var fstr = '', tab = '      ';
-    fstr = addline(fstr, 'JS files used in ASP documents');
+    fstr = addline(fstr, 'JS files used in ' + extension + ' documents');
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
     fstr = addline(fstr, 'SUMMARY');
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
-    fstr = addline(fstr, aspFiles.length + ' ASP files affected of ' + totalAsp);
+    fstr = addline(fstr, containerFiles.length + ' ' +  extension + ' files affected of ' + totalContainerFiles);
     
-    aspFiles.forEach(function (f) {
+    containerFiles.forEach(function (f) {
         var name = f.file.name,
             ref = f.referencedFiles.length,
             totalUses = 0;
@@ -112,9 +114,9 @@ function writeFile(){
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
     
-    aspFiles.forEach(function (f, i) {
-        //asp name
-        fstr = addline(fstr, i + ' ASP: ' + f.file.name);
+    containerFiles.forEach(function (f, i) {
+        //container name
+        fstr = addline(fstr, i + ' ' + extension + ': ' + f.file.name);
         fstr = addline(fstr, f.file.path);
         fstr = addline(fstr);
         fstr = addline(fstr, '-------------------------------------');
@@ -126,7 +128,7 @@ function writeFile(){
             fstr = addline(fstr, tab + 'JS: (' + rf.file.id + ') ' + rf.file.name);
             fstr = addline(fstr, tab + rf.file.path);
             fstr = addline(fstr);
-            fstr = addline(fstr, tab + tab + 'uses in ASP file: ' + rf.uses.length);
+            fstr = addline(fstr, tab + tab + 'uses in ' + extension + ' file: ' + rf.uses.length);
             fstr = addline(fstr);
             //uses
             rf.uses.forEach(function (u) {
@@ -154,14 +156,14 @@ nd.files(DIR, function (err, files) {
     
     //now let's start searching for the names
     nd.readFiles(DIR, {
-        match: aspPattern
+        match: ContainerFilePattern
     }, function (err, content, usedInFileName, next) {
         if (err) throw err;
-        parseAsp(content, usedInFileName);
+        parseContainerFile(content, usedInFileName);
         next();
     }, function (err) {
         if (err) throw err;
-        echo('Found ' + aspFiles.length + ' asp files with js use');
+        echo('Found ' + containerFiles.length + ' ' + extension +' files with js use');
         writeFile();
     });
 });

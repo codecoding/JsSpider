@@ -4,18 +4,20 @@ var fs = require('fs'),
     nd = require('node-dir'),
     path = require('path'),
     models = require('./models.js'),
-    DIR = 'C:\\TFS\\Habitaclia\\Frontal\\Habitaclia\\RELEASE',
-    aspFiles = [],
+    config = require('./config.js'),
+    DIR = config.DIR,
+    ContainerFilePattern = config.ContainerFilePattern,
+    extension = config.extension,
+    containerFiles = [],
     echo = console.log,
-    aspPattern = /\.asp$/,
     found = 0,
-    totalAsp = 0;
+    totalContainerFiles = 0;
 
 echo('Starting our mission');
 echo('Searching in', DIR);
 
 
-function parseAsp(content, filename){
+function parseContainerFile(content, filename){
     var patt = /<script/gi,
         extpatt = new RegExp('(.{0,40})(<script)(.{0,120})', 'gi'),
         useFound = 0;
@@ -36,11 +38,11 @@ function parseAsp(content, filename){
         } while(m);
         if (uses.length) {
             echo('... found ', useFound , ' inline uses in ' + path.basename(filename));
-            aspFiles.push(new models.UseFile(new models.File(filename), uses));
-            echo('... ASPs affected ', found++);
+            containerFiles.push(new models.UseFile(new models.File(filename), uses));
+            echo('... ' + extension + 's affected ', found++);
         }
     }
-    totalAsp++;
+    totalContainerFiles++;
 }
 
 function writeFile(){
@@ -52,22 +54,22 @@ function writeFile(){
         return str;
     }
     var fstr = '', tab = '      ';
-    fstr = addline(fstr, 'Inline code used in ASP documents');
+    fstr = addline(fstr, 'Inline code used in ' + extension + ' documents');
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
     fstr = addline(fstr, 'SUMMARY');
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
-    fstr = addline(fstr, aspFiles.length + ' ASP files affected of ' + totalAsp);
+    fstr = addline(fstr, containerFiles.length + ' ' + extension + ' files affected of ' + totalContainerFiles);
     
-    aspFiles.forEach(function (f) {
+    containerFiles.forEach(function (f) {
         fstr = addline(fstr, f.file.name + '  ............  ' + f.uses.length + ' inline uses.');
     });
     fstr = addline(fstr, '------------------------------' + nl);
     
-    aspFiles.forEach(function (f) {
-        //asp name
-        fstr = addline(fstr, 'ASP: ' + f.file.name);
+    containerFiles.forEach(function (f) {
+        //container file name
+        fstr = addline(fstr,  extension +': '+ f.file.name);
         fstr = addline(fstr, f.file.path);
         fstr = addline(fstr);
         fstr = addline(fstr, '-------------------------------------');
@@ -92,13 +94,13 @@ function writeFile(){
 
 //now let's start searching for the names
 nd.readFiles(DIR, {
-    match: aspPattern
+    match: ContainerFilePattern
 }, function (err, content, filename, next) {
     if (err) throw err;
-    parseAsp(content, filename);
+    parseContainerFile(content, filename);
     next();
 }, function (err) {
     if (err) throw err;
-    echo('Found ' + aspFiles.length + ' asp files with inline js');
+    echo('Found ' + containerFiles.length + ' ' + extension + ' files with inline js');
     writeFile();
 });
