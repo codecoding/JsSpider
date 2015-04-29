@@ -1,0 +1,13 @@
+{
+  "name": "JsSpider",
+  "version": "0.0.0",
+  "description": "JsSpider",
+  "main": "app.js",
+  "author": {
+    "name": "Roberto",
+    "email": "roberto.huertas@outlook.com"
+  },
+  "dependencies": {
+    "node-dir": "^0.1.8"
+  }
+}
