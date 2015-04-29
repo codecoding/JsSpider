@@ -46,9 +46,8 @@ function parseContainerFile(content, usedInFileName){
             do {
                 m = extpatt.exec(content);
                 if (m) {
-                    uses.push(m[1] + m[2] + m[3]);
+                    uses.push(m[0]);
                     useFound++;
-                        //console.log(m[1], m[2], m[3]); //groups
                 }
             } while(m);
             echo('... found ', useFound , ' js matches in ' + path.basename(usedInFileName));

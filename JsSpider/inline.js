@@ -19,7 +19,7 @@ echo('Searching in', DIR);
 
 function parseContainerFile(content, filename){
     var patt = /<script/gi,
-        extpatt = new RegExp('(.{0,40})(<script)(.{0,120})', 'gi'),
+        extpatt = new RegExp('(<script)((.|[\r\n])+?(</script>))', 'gi'),
         useFound = 0;
     //let's search
     var isIn = patt.test(content);
@@ -30,7 +30,7 @@ function parseContainerFile(content, filename){
             m = extpatt.exec(content);
             if (m) {
                 if (m[0].indexOf('src') < 0) {
-                    uses.push(m[1] + m[2] + m[3]);
+                    uses.push(m[0]);
                     useFound++;
                 }
                 //console.log(m[1], m[2], m[3]); //groups
