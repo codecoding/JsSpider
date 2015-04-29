@@ -14,7 +14,7 @@ node inline will search for script tags. This is mainly intended to find inline 
 Feel free to change the code in order to search amongst the files of the type you want.
 Don't forget to change the root path in offline.js and inline.js.
 
-
+Cheers!
 
 
 
