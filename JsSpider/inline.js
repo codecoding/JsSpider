@@ -93,7 +93,6 @@ function writeFile(){
 }
 
 function searchForFileNames(directories, done) {
-    var len = directories.length - 1;
     directories.forEach(function (dir, i) {
         nd.readFiles(dir, {
             match: ContainerFilePattern
@@ -103,7 +102,7 @@ function searchForFileNames(directories, done) {
             next();
         }, function (err) {
             if (err) throw err;
-            if (i === len && done instanceof Function) {
+            if (i === 0 && done instanceof Function) {
                 echo('Found ' + containerFiles.length + ' ' + extension + ' files with inline js');
                 done();
             }

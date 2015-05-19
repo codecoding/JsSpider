@@ -148,14 +148,12 @@ function writeFile() {
 
 function getAllDirectoryFiles(directories, done) {
     var result = [];
-    var len = directories.length - 1;
-    directories.forEach(function (dir, i) {
-        
+    directories.forEach(function (dir, i) {     
         nd.files(dir, function (err, files) {
             if (err) throw err;
             var fArr = getJsFiles(files);
             result = result.concat(fArr);
-            if (i === len && done instanceof Function) {
+            if (i === 0 && done instanceof Function) {
                 done(result);
             }
         });
@@ -163,7 +161,6 @@ function getAllDirectoryFiles(directories, done) {
 }
 
 function searchForFileNames(directories, done) {
-    var len = directories.length - 1;
     directories.forEach(function (dir, i) {
         nd.readFiles(dir, {
             match: ContainerFilePattern
@@ -173,7 +170,7 @@ function searchForFileNames(directories, done) {
             next();
         }, function (err) {
             if (err) throw err;
-            if (i === len && done instanceof Function) {
+            if (i === 0 && done instanceof Function) {
                 echo('Found ' + containerFiles.length + ' ' + extension + ' files with js use');
                 done();
             }
