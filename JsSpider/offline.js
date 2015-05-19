@@ -30,7 +30,7 @@ function getJsFiles(files) {
     return jsc;
 }
 
-function parseContainerFile(content, usedInFileName){
+function parseContainerFile(content, usedInFileName) {
     var patt = null,
         extpatt = null,
         jsUsedFiles = [],
@@ -64,12 +64,12 @@ function parseContainerFile(content, usedInFileName){
         var id = found++;
         var cf = new models.ContainerFile(new models.File(usedInFileName, id), jsUsedFiles);
         containerFiles.push(cf);
-        echo('... ' + extension +'s affected ', id);
+        echo('... ' + extension + 's affected ', id);
     }
     totalContainerFiles++;
 }
 
-function writeFile(){
+function writeFile() {
     //creating formatted string
     var nl = '\r\n';
     function addline(str, strAdd) {
@@ -84,7 +84,7 @@ function writeFile(){
     fstr = addline(fstr, 'SUMMARY');
     fstr = addline(fstr, '------------------------------');
     fstr = addline(fstr, nl);
-    fstr = addline(fstr, containerFiles.length + ' ' +  extension + ' files affected of ' + totalContainerFiles);
+    fstr = addline(fstr, containerFiles.length + ' ' + extension + ' files affected of ' + totalContainerFiles);
     
     containerFiles.forEach(function (f) {
         var name = f.file.name,
@@ -146,23 +146,53 @@ function writeFile(){
     });
 }
 
-//execute app
-nd.files(DIR, function (err, files) {
-    if (err) throw err;
-    
-    jsFiles = getJsFiles(files);
-    echo('Found ' + jsFiles.length + ' files');
-    
-    //now let's start searching for the names
-    nd.readFiles(DIR, {
-        match: ContainerFilePattern
-    }, function (err, content, usedInFileName, next) {
-        if (err) throw err;
-        parseContainerFile(content, usedInFileName);
-        next();
-    }, function (err) {
-        if (err) throw err;
-        echo('Found ' + containerFiles.length + ' ' + extension +' files with js use');
-        writeFile();
+function getAllDirectoryFiles(directories, done) {
+    var result = [];
+    var len = directories.length - 1;
+    directories.forEach(function (dir, i) {
+        
+        nd.files(dir, function (err, files) {
+            if (err) throw err;
+            var fArr = getJsFiles(files);
+            result = result.concat(fArr);
+            if (i === len && done instanceof Function) {
+                done(result);
+            }
+        });
     });
-});
+}
+
+function searchForFileNames(directories, done) {
+    var len = directories.length - 1;
+    directories.forEach(function (dir, i) {
+        nd.readFiles(dir, {
+            match: ContainerFilePattern
+        }, function (err, content, usedInFileName, next) {
+            if (err) throw err;
+            parseContainerFile(content, usedInFileName);
+            next();
+        }, function (err) {
+            if (err) throw err;
+            if (i === len && done instanceof Function) {
+                echo('Found ' + containerFiles.length + ' ' + extension + ' files with js use');
+                done();
+            }
+        });
+    });
+}
+
+function start() {
+    
+    if (!(DIR instanceof Array)) {
+        DIR = [DIR];
+    }
+    
+    getAllDirectoryFiles(DIR, function (result) {
+        jsFiles = result;
+        echo('Found ' + jsFiles.length + ' files');
+        searchForFileNames(DIR, writeFile);
+    });
+}
+
+//execute app
+start();

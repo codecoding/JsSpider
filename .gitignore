@@ -191,3 +191,5 @@ JsSpider\node_modules\*
 JsSpider\*.txt
 *.txt
 JsSpider.sln.GhostDoc.xml
+.settings/launch.json
+*.dat

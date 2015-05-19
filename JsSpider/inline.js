@@ -92,15 +92,33 @@ function writeFile(){
     });
 }
 
-//now let's start searching for the names
-nd.readFiles(DIR, {
-    match: ContainerFilePattern
-}, function (err, content, filename, next) {
-    if (err) throw err;
-    parseContainerFile(content, filename);
-    next();
-}, function (err) {
-    if (err) throw err;
-    echo('Found ' + containerFiles.length + ' ' + extension + ' files with inline js');
-    writeFile();
-});
+function searchForFileNames(directories, done) {
+    var len = directories.length - 1;
+    directories.forEach(function (dir, i) {
+        nd.readFiles(dir, {
+            match: ContainerFilePattern
+        }, function (err, content, usedInFileName, next) {
+            if (err) throw err;
+            parseContainerFile(content, usedInFileName);
+            next();
+        }, function (err) {
+            if (err) throw err;
+            if (i === len && done instanceof Function) {
+                echo('Found ' + containerFiles.length + ' ' + extension + ' files with inline js');
+                done();
+            }
+        });
+    });
+}
+
+function start() {
+    
+    if (!(DIR instanceof Array)) {
+        DIR = [DIR];
+    }
+    
+    searchForFileNames(DIR, writeFile);
+}
+
+//execute app
+start();

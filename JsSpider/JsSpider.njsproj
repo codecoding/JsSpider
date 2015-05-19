@@ -12,7 +12,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>06b5bb58-ba66-4bdf-9725-46959748333d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>offline.js</StartupFile>
+    <StartupFile>inline.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
