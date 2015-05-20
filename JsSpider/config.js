@@ -1,7 +1,10 @@
 ﻿/*jslint node:true*/
 
 module.exports = {
-    DIR: ['C:\\thepath\\toyour\\root\\folder'],
-    ContainerFilePattern : /\.asp$/,
-    extension:'ASP'
+    DIR: [
+        'C:\\TFS\\Habitaclia\\Frontal\\Habitaclia\\RELEASE', 
+        'C:\\TFS\\Habitaclia\\Frontal\\Shared.Core\\RELEASE'
+    ],
+    ContainerFilePattern : /\.(asp|html)$/,
+    extension:'ASP or HTML'
 };

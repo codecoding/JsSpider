@@ -12,7 +12,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>06b5bb58-ba66-4bdf-9725-46959748333d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>offline.js</StartupFile>
+    <StartupFile>external.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -33,6 +33,7 @@
     <Compile Include="inline.js" />
     <Compile Include="config.js" />
     <Compile Include="models.js" />
+    <Compile Include="external.js" />
     <Compile Include="offline.js" />
     <Content Include="package.json" />
   </ItemGroup>
