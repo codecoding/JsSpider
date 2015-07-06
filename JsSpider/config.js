@@ -2,8 +2,8 @@
 
 module.exports = {
     DIR: [
-        'C:\\TFS\\Habitaclia\\Frontal\\Habitaclia\\RELEASE', 
-        'C:\\TFS\\Habitaclia\\Frontal\\Shared.Core\\RELEASE'
+        'C:\\PATH1\\FOLDER', 
+        'C:\\PATH2\\FOLDER'
     ],
     ContainerFilePattern : /\.(asp|html)$/,
     extension:'ASP or HTML'
